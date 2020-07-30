@@ -1,6 +1,6 @@
 #define arr_len(x)(sizeof(x) / sizeof( * x))
 const uint8_t SIGNAL_PINS[] = {A0, A1, A2, A3, A4, A5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-bool is_sender;
+bool is_receiver;
 int NUM_PINS;
 char startMarker = '<';
 char endMarker = '>';
@@ -8,19 +8,19 @@ char endMarker = '>';
 void setup() {
   NUM_PINS = arr_len(SIGNAL_PINS);
   
-  pinMode(13, INPUT);
-  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+  pinMode(12, INPUT); 
   Serial.begin(9600);
 }
 
 void loop() {
-  is_sender = !digitalRead(13);
-  digitalWrite(12, is_sender);
+  is_receiver = digitalRead(12);
+  digitalWrite(13, is_receiver);
 
-  if (is_sender) {
-    sender_loop();
-  } else {
+  if (is_receiver) {
     receiver_loop();
+  } else {
+    sender_loop();
   }
 }
 
@@ -68,6 +68,7 @@ void receiver_loop() {
       }
     } else if (rc == startMarker) {
       recvInProgress = true;
+      ndx = 0;
     }
   }
 
