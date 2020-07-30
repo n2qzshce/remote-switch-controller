@@ -27,13 +27,15 @@ void loop() {
 void sender_loop() {
   
   for (int i = 0; i < NUM_PINS; i++) {
-    pinMode(SIGNAL_PINS[i], INPUT);
+    pinMode(SIGNAL_PINS[i], OUTPUT);
+    digitalWrite(SIGNAL_PINS[i], false);
   }
 
   unsigned int pinValue;
   
   Serial.write(startMarker);
   for (int i = 0; i < NUM_PINS; i++) {
+    pinMode(SIGNAL_PINS[i], INPUT);
     pinValue = digitalRead(SIGNAL_PINS[i]);
     Serial.write(pinValue);
   }
