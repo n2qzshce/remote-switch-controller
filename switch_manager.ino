@@ -5,8 +5,15 @@ int NUM_PINS;
 char startMarker = '<';
 char endMarker = '>';
 
+bool flashState;
+char receivedChars[32];
+int failedAttempts;
+int bailThreshold = 10;
+
 void setup() {
   NUM_PINS = arr_len(SIGNAL_PINS);
+  failedAttempts = 0;
+  flashState = true;
   
   pinMode(13, OUTPUT);
   pinMode(12, INPUT); 
@@ -22,7 +29,7 @@ void loop() {
   } else {
     sender_loop();
   }
-}
+}  
 
 void sender_loop() {
   
@@ -30,6 +37,8 @@ void sender_loop() {
     pinMode(SIGNAL_PINS[i], OUTPUT);
     digitalWrite(SIGNAL_PINS[i], false);
   }
+
+  delay(1);
 
   unsigned int pinValue;
   
@@ -42,8 +51,6 @@ void sender_loop() {
   Serial.write(endMarker);
 }
 
-char receivedChars[32];
-
 void receiver_loop() {
   for (int i = 0; i < NUM_PINS; i++) {
     pinMode(SIGNAL_PINS[i], OUTPUT);
@@ -52,8 +59,27 @@ void receiver_loop() {
   static boolean recvInProgress = false;
   static byte ndx = 0;
   char rc;
+  unsigned int serialAvailable = Serial.available();  
 
-  while (Serial.available() > 0) {
+  if(serialAvailable <= 0)
+  {
+    failedAttempts += 1;
+    delay(10);
+    if(failedAttempts > bailThreshold)
+    {
+      for (int i = 0; i < arr_len(SIGNAL_PINS); i++) {
+        digitalWrite(SIGNAL_PINS[i], false);
+      }
+
+      digitalWrite(13, flashState);
+      flashState = !flashState;
+      delay(100);
+    }
+    return;
+  }
+
+  while (serialAvailable > 0) {
+    failedAttempts = 0;
     rc = Serial.read();
 
     if (recvInProgress == true) {
@@ -72,6 +98,8 @@ void receiver_loop() {
       recvInProgress = true;
       ndx = 0;
     }
+
+    serialAvailable = Serial.available();
   }
 
   for (int i = 0; i < arr_len(SIGNAL_PINS); i++) {
