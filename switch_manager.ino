@@ -46,7 +46,13 @@ void sender_loop() {
   for (int i = 0; i < NUM_PINS; i++) {
     pinMode(SIGNAL_PINS[i], INPUT);
     pinValue = digitalRead(SIGNAL_PINS[i]);
-    Serial.write(pinValue);
+    
+    char writeVal = 'F';
+    if(pinValue == HIGH)
+    {
+      writeVal = 'T';
+    }
+    Serial.write(writeVal);
   }
   Serial.write(endMarker);
 }
@@ -104,7 +110,7 @@ void receiver_loop() {
 
   for (int i = 0; i < arr_len(SIGNAL_PINS); i++) {
     char x = receivedChars[i];
-    bool pinValue = x;
+    bool pinValue = x == 'T';
     digitalWrite(SIGNAL_PINS[i], pinValue);
   }
 }
