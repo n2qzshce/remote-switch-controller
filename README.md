@@ -52,7 +52,7 @@ Note that you will need to wire all the inputs and outputs, only 4 are illustrat
 
 ### Sample relay panel:
 
-![Sample relay panel](sample_relays.png)
+![Sample relay panel](sample_relays2.png)
 
 # Tweakables/configurable variables in the .ino
 
